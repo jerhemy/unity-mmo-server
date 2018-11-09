@@ -54,6 +54,11 @@ namespace GameServer
         {
             if (secondsToStop == 0)
             {
+                foreach (var (remoteClient, reliableEndpoint) in _clients)
+                {
+                    _server.Disconnect(remoteClient);
+                }
+
                 _server.Stop();
             }
         }
@@ -68,13 +73,15 @@ namespace GameServer
         }
         
         private void clientConnectedHandler(RemoteClient client)
-        {
+        {           
             Console.WriteLine($"clientConnectedHandler: {client}");
+            _clients.TryAdd(client, new ReliableEndpoint());
         }
         
         private void clientDisconnectedHandler(RemoteClient client)
         {
             Console.WriteLine($"clientDisconnectedHandler: {client}");
+            _clients.TryRemove(client, out _);
         }
         
         private static void messageReceivedHandler(RemoteClient client, byte[] payload, int payloadSize)
