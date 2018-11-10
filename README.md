@@ -1,1 +1,3 @@
-# unity-mmo-server
+# Unity MMO Server
+-------------------------------
+Custom Unity MMO Server 
