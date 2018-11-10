@@ -75,9 +75,16 @@ namespace GameServer
 
         public void SendAll(byte[] payload, int payloadSize, QosType type = QosType.Unreliable)
         {
+            Console.WriteLine($"Sending Payload of {payloadSize} bytes.");
             foreach (var (remoteClient, reliableEndpoint) in _clients)
             {
-                reliableEndpoint.TransmitCallback = ( data, dataSize ) => remoteClient.SendPayload( data, dataSize );                 
+                reliableEndpoint.TransmitCallback = ( buffer, size ) =>
+                {
+                    Console.WriteLine($"Sending Data...");
+                    remoteClient.SendPayload(buffer, size);
+                    
+                };
+                
                 reliableEndpoint.SendMessage(payload, payloadSize, type);
             }
         }
@@ -85,7 +92,7 @@ namespace GameServer
         public void Send(RemoteClient client, byte[] payload, int payloadSize, QosType type = QosType.Unreliable)
         {
             _clients.TryGetValue(client, out var reliableEndpoint);
-            reliableEndpoint.SendMessage(payload, payloadSize, type);
+            reliableEndpoint?.SendMessage(payload, payloadSize, type);
         }
         
         private void clientConnectedHandler(RemoteClient client)
@@ -106,12 +113,13 @@ namespace GameServer
         {
             _clients.TryGetValue(client, out var _reliableEndpoint);
             Console.WriteLine($"Client {client.ClientID} sent message");
-            _reliableEndpoint.ReceivePacket(payload, payloadSize);          
+            _reliableEndpoint?.ReceivePacket(payload, payloadSize);
         }
-                    
+            
         private void ReliableClientMessageReceived(byte[] payload, int payloadSize)
         {
-            MessageType type = (MessageType)payload[0];
+            Console.WriteLine($"Received Payload of {payloadSize} bytes.");
+            MessageType type = (MessageType)BitConverter.ToInt16(payload, 0);
             if (type == MessageType.Chat)
             {
                 SendAll(payload, payloadSize);
@@ -120,7 +128,7 @@ namespace GameServer
             {
                 Console.WriteLine($"Type: {(MessageType) Enum.Parse(typeof(MessageType), type.ToString())}");
 
-                var pos = StructTools.RawDeserialize<Position>(payload, 1); // 0 is offset in byte[]
+                var pos = StructTools.RawDeserialize<Position>(payload, 2); // 0 is offset in byte[]
                 //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
                 Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");
                 SendAll(payload, payloadSize);
