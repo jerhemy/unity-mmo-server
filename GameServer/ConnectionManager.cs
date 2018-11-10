@@ -1,12 +1,21 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Threading.Tasks;
+using GameServer.GameServer;
 using NetcodeIO.NET;
 using ReliableNetcode;
 
 namespace GameServer
 {
+    public delegate void PlayerConnected();
+    public delegate void ChatMessage();
+    public delegate void Movement();
+    
+    
     public class ConnectionManager
     {
         static readonly byte[] _privateKey = new byte[]
@@ -45,7 +54,7 @@ namespace GameServer
 
             // Called when a payload has been received from a client
             // Note that you should not keep a reference to the payload, as it will be returned to a pool after this call completes.
-            _server.OnClientMessageReceived += messageReceivedHandler;	// void( RemoteClient client, byte[] payload, int payloadSize )
+            _server.OnClientMessageReceived += ClientMessageReceivedHandler;	// void( RemoteClient client, byte[] payload, int payloadSize )
             
             _server.Start(); 
             Console.WriteLine("Waiting for connections...");
@@ -64,21 +73,26 @@ namespace GameServer
             }
         }
 
-        public void SendAll(byte[] payload, int payloadSize)
+        public void SendAll(byte[] payload, int payloadSize, QosType type = QosType.Unreliable)
         {
-
+            foreach (var (remoteClient, reliableEndpoint) in _clients)
+            {
+                reliableEndpoint.SendMessage(payload, payloadSize, type);
+            }
         }
-        public void SendTo(RemoteClient client, byte[] payload, int payloadSize)
+        
+        public void Send(RemoteClient client, byte[] payload, int payloadSize, QosType type = QosType.Unreliable)
         {
-            
+            _clients.TryGetValue(client, out var reliableEndpoint);
+            reliableEndpoint.SendMessage(payload, payloadSize, type);
         }
         
         private void clientConnectedHandler(RemoteClient client)
         {           
             Console.WriteLine($"clientConnectedHandler: {client}");
             ReliableEndpoint _reliableEndpoint = new ReliableEndpoint();
+            _reliableEndpoint.TransmitCallback += ReliableClientMessageSend;
             _reliableEndpoint.ReceiveCallback += ReliableClientMessageReceived;
-            
             _clients.TryAdd(client, _reliableEndpoint);
         }
         
@@ -88,21 +102,33 @@ namespace GameServer
             _clients.TryRemove(client, out _);
         }
         
-        private static void messageReceivedHandler(RemoteClient client, byte[] payload, int payloadSize)
+        private void ClientMessageReceivedHandler(RemoteClient client, byte[] payload, int payloadSize)
         {
-            ReliableEndpoint _reliableEndpoint;
-            _clients.TryGetValue(client, out _reliableEndpoint);           
-            _reliableEndpoint.ReceivePacket(payload, payloadSize);
-            _reliableEndpoint.Update();
-
+            _clients.TryGetValue(client, out var _reliableEndpoint);
+            Console.WriteLine($"Client {client.ClientID} sent message");
+            _reliableEndpoint.ReceivePacket(payload, payloadSize);          
         }
-
-        private static void ReliableClientMessageReceived(byte[] payload, int payloadSize)
+            
+        private void ReliableClientMessageSend(byte[] payload, int payloadSize)
         {
-            var pos = StructTools.RawDeserialize<Position>(payload, 0); // 0 is offset in byte[]
-            //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
-            Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");     
-        }
+            Console.WriteLine($"Sending Data...");
+        } 
         
+        private void ReliableClientMessageReceived(byte[] payload, int payloadSize)
+        {
+            MessageType type = (MessageType)payload[0];
+            if (type == MessageType.Chat)
+            {
+                SendAll(payload, payloadSize);
+            }
+            else
+            {
+                Console.WriteLine($"Type: {(MessageType) Enum.Parse(typeof(MessageType), type.ToString())}");
+
+                var pos = StructTools.RawDeserialize<Position>(payload, 1); // 0 is offset in byte[]
+                //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
+                Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");
+            }
+        }       
     }
 }
