@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using NetcodeIO.NET;
 using ReliableNetcode;
@@ -18,7 +19,7 @@ namespace GameServer
         
         private static Server _server;
 
-        private ConcurrentDictionary<RemoteClient, ReliableEndpoint> _clients;
+        private static ConcurrentDictionary<RemoteClient, ReliableEndpoint> _clients;
         
         public ConnectionManager()
         {
@@ -75,7 +76,10 @@ namespace GameServer
         private void clientConnectedHandler(RemoteClient client)
         {           
             Console.WriteLine($"clientConnectedHandler: {client}");
-            _clients.TryAdd(client, new ReliableEndpoint());
+            ReliableEndpoint _reliableEndpoint = new ReliableEndpoint();
+            _reliableEndpoint.ReceiveCallback += ReliableClientMessageReceived;
+            
+            _clients.TryAdd(client, _reliableEndpoint);
         }
         
         private void clientDisconnectedHandler(RemoteClient client)
@@ -86,9 +90,18 @@ namespace GameServer
         
         private static void messageReceivedHandler(RemoteClient client, byte[] payload, int payloadSize)
         {
+            ReliableEndpoint _reliableEndpoint;
+            _clients.TryGetValue(client, out _reliableEndpoint);           
+            _reliableEndpoint.ReceivePacket(payload, payloadSize);
+            _reliableEndpoint.Update();
+
+        }
+
+        private static void ReliableClientMessageReceived(byte[] payload, int payloadSize)
+        {
             var pos = StructTools.RawDeserialize<Position>(payload, 0); // 0 is offset in byte[]
             //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
-            Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");
+            Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");     
         }
         
     }
