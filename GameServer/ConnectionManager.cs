@@ -77,6 +77,7 @@ namespace GameServer
         {
             foreach (var (remoteClient, reliableEndpoint) in _clients)
             {
+                reliableEndpoint.TransmitCallback = ( data, dataSize ) => remoteClient.SendPayload( data, dataSize );                 
                 reliableEndpoint.SendMessage(payload, payloadSize, type);
             }
         }
@@ -91,7 +92,6 @@ namespace GameServer
         {           
             Console.WriteLine($"clientConnectedHandler: {client}");
             ReliableEndpoint _reliableEndpoint = new ReliableEndpoint();
-            _reliableEndpoint.TransmitCallback += ReliableClientMessageSend;
             _reliableEndpoint.ReceiveCallback += ReliableClientMessageReceived;
             _clients.TryAdd(client, _reliableEndpoint);
         }
@@ -108,12 +108,7 @@ namespace GameServer
             Console.WriteLine($"Client {client.ClientID} sent message");
             _reliableEndpoint.ReceivePacket(payload, payloadSize);          
         }
-            
-        private void ReliableClientMessageSend(byte[] payload, int payloadSize)
-        {
-            Console.WriteLine($"Sending Data...");
-        } 
-        
+                    
         private void ReliableClientMessageReceived(byte[] payload, int payloadSize)
         {
             MessageType type = (MessageType)payload[0];
@@ -128,6 +123,7 @@ namespace GameServer
                 var pos = StructTools.RawDeserialize<Position>(payload, 1); // 0 is offset in byte[]
                 //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
                 Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");
+                SendAll(payload, payloadSize);
             }
         }       
     }
