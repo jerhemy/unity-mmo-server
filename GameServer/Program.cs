@@ -7,7 +7,7 @@ namespace GameServer
 {
     class Program
     {
-        private static ConnectionManager _connectionManager = new ConnectionManager();
+        private static ConnectionManager _connectionManager;
         static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder()
@@ -18,13 +18,16 @@ namespace GameServer
  
             var appConfig = config.Get<ServerConfig>();
             
-            Console.WriteLine($"Max Clients : {appConfig.maxClients}");
-            Console.WriteLine($"Public Address : {appConfig.publicAddress}");
-            Console.WriteLine($"Port : {appConfig.port}");
-            Console.WriteLine($"ProtocolID : {appConfig.protocolID}");
-            Console.WriteLine($"PrivateKey : {appConfig.privateKey}");
-            
+            _connectionManager = new ConnectionManager();
+//            Console.WriteLine($"Max Clients : {appConfig.maxClients}");
+//            Console.WriteLine($"Public Address : {appConfig.publicAddress}");
+//            Console.WriteLine($"Port : {appConfig.port}");
+//            Console.WriteLine($"ProtocolID : {appConfig.protocolID}");
+//            Console.WriteLine($"PrivateKey : {appConfig.privateKey}");
+
             _connectionManager.StartServer();
+            
+            
             Console.ReadLine();
             
             _connectionManager.StopServer();
