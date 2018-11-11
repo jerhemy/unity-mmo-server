@@ -130,9 +130,9 @@ namespace GameServer
 
                 var pos = StructTools.RawDeserialize<Position>(payload, 2); // 0 is offset in byte[]
                 //Console.WriteLine($"messageReceivedHandler: {client} sent {payloadSize} bytes of data.");
-                Console.WriteLine($"X:{pos.X} Y:{pos.Y} Z:{pos.Z}");
+                Console.WriteLine(pos.ToString());
                 SendAll(payload, payloadSize);
             }
         }       
     }
-}
+}w
