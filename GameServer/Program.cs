@@ -36,7 +36,7 @@ namespace GameServer
                 var id = x + 2;
                 entities.Add(new Entity
                 {
-                    id = id , name = $"NPC {x}", x = rnd.Next(0, 50), y = 0, z = rnd.Next(0, 50), orientation = 0, zone = "gfay"
+                    id = id , name = @"Text" + x, x = rnd.Next(0, 50), y = 0, z = rnd.Next(0, 50), orientation = 0
                 });
             }
             //entityRepository = new EntityRepository();

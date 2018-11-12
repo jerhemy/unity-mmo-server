@@ -1,18 +1,17 @@
+using System;
+using System.Runtime.InteropServices;
+
 namespace GameServer.Models
 {
-    /// <summary>
-    /// The main Math class.
-    /// Contains all methods for performing basic math functions.
-    /// </summary>
+    [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)] 
     public struct Entity
     {
         public int id;
         
-        /* Base Character */
-        public string name;
-
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst=16)]
+        public String name;
+        
         /* Positioning */
-        public string zone;
         public double x;
         public double y;
         public double z;
