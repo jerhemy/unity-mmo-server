@@ -31,12 +31,22 @@ namespace GameServer
             var appConfig = config.Get<ServerConfig>();
 
             Random rnd = new Random();
-            for (int x = 0; x < 10; x++)
+            for (int x = 0; x < 1; x++)
             {
                 var id = x + 2;
                 entities.Add(new Entity
                 {
-                    id = id , name = @"Text" + x, x = rnd.Next(0, 50), y = 0, z = rnd.Next(0, 50), orientation = 0
+                    id = id , 
+                    name = @"Text" + x, 
+                    loc = new SimpleVector3(0, 0, 0), 
+                    orientation = 0,
+                    waypoints = new []
+                    {
+                        new SimpleVector3(-5f, 0, 5f),
+                        new SimpleVector3(-5f, 0, 35f),
+                        new SimpleVector3(-25f, 0, 35f),
+                        new SimpleVector3(-35f, 0, 5f)
+                    }
                 });
             }
             //entityRepository = new EntityRepository();
@@ -62,13 +72,7 @@ namespace GameServer
         {
             while (true)
             {             
-                entities.ForEach(e =>
-                {
-                    var data = StructTools.RawSerialize(e);
-                    var type = BitConverter.GetBytes((short) MessageType.Entity);
-                    var payload = type.Concat(data).ToArray();
-                    _connectionManager.SendAll(payload, payload.Length);
-                });
+                entities.ForEach(e => { _connectionManager.SendAll(e, MessageType.Entity); });
                 Thread.Sleep(600);
             }
         }
