@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using GameServer.GameServer;
+using GameServer.Utils;
 using NetcodeIO.NET;
 using ReliableNetcode;
 
@@ -33,6 +34,12 @@ namespace GameServer
         public ConnectionManager()
         {
             _clients = new ConcurrentDictionary<RemoteClient, ReliableEndpoint>();    
+        }
+
+        public RemoteClient GetClient(ulong id)
+        {
+            var client = _clients.FirstOrDefault(pair => pair.Key.ClientID == id);
+            return client.Key;
         }
         
         public void StartServer()
@@ -75,14 +82,12 @@ namespace GameServer
 
         public void SendAll(byte[] payload, int payloadSize, QosType type = QosType.Unreliable)
         {
-            Console.WriteLine($"Sending Payload of {payloadSize} bytes.");
+            //Console.WriteLine($"Sending Payload of {payloadSize} bytes.");
             foreach (var (remoteClient, reliableEndpoint) in _clients)
             {
                 reliableEndpoint.TransmitCallback = ( buffer, size ) =>
-                {
-                    Console.WriteLine($"Sending Data...");
-                    remoteClient.SendPayload(buffer, size);
-                    
+                {                 
+                    remoteClient.SendPayload(buffer, size);                  
                 };
                 
                 reliableEndpoint.SendMessage(payload, payloadSize, type);

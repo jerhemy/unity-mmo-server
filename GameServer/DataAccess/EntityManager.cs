@@ -1,3 +1,5 @@
+using System.Data.SQLite;
+
 namespace GameServer
 {
     public class EntityManager

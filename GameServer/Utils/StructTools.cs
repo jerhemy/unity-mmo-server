@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace GameServer
+namespace GameServer.Utils
 {
     public static class StructTools
     {

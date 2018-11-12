@@ -12,7 +12,8 @@ namespace GameServer
             CastSpell     = 0x06,
             Craft         = 0x07,
             Teleport      = 0x08,
-            Emote         = 0x09
+            Emote         = 0x09,
+            Entity        = 0x10
         }
     }
 }
