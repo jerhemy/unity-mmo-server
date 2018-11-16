@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace GameServer.Models
@@ -20,5 +21,25 @@ namespace GameServer.Models
 
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct, SizeConst = 8)]
         public SimpleVector3[] waypoints;
+    }
+
+
+    public class CEntity
+    {
+        private int Id { get; set; }
+
+        private string name;
+        
+        private Vector3 position;
+        private Quaternion orientation;
+        private Vector3[] Waypoints;
+
+        public CEntity(int Id)
+        {
+            this.Id = Id;
+        }
+        
+        
+        
     }
 }

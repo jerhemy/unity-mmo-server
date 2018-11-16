@@ -24,7 +24,7 @@ namespace GameServer
             0x60, 0x6a, 0xbe, 0x6e, 0xc9, 0x19, 0x10, 0xea,
             0x9a, 0x65, 0x62, 0xf6, 0x6f, 0x2b, 0x30, 0xe4,
             0x43, 0x71, 0xd6, 0x2c, 0xd1, 0x99, 0x27, 0x26,
-            0x6b, 0x3c, 0x60, 0xf4, 0xb7, 0x15, 0xab, 0xa1,
+            0x6b, 0x3c, 0x60, 0xf4, 0xb7, 0x15, 0xab, 0xa1
         };
 
         public ChatMessageReceived OnChatMessage;
@@ -56,10 +56,10 @@ namespace GameServer
             );
             
             // Called when a client has connected
-            _server.OnClientConnected += clientConnectedHandler;		// void( RemoteClient client )
+            _server.OnClientConnected += ClientConnectedHandler;		// void( RemoteClient client )
 
             // Called when a client disconnects
-            _server.OnClientDisconnected += clientDisconnectedHandler;	// void( RemoteClient client )
+            _server.OnClientDisconnected += ClientDisconnectedHandler;	// void( RemoteClient client )
 
             // Called when a payload has been received from a client
             // Note that you should not keep a reference to the payload, as it will be returned to a pool after this call completes.
@@ -124,7 +124,7 @@ namespace GameServer
             reliableEndpoint?.SendMessage(payload, payload.Length, qosType);
         }
         
-        private void clientConnectedHandler(RemoteClient client)
+        private void ClientConnectedHandler(RemoteClient client)
         {           
             Console.WriteLine($"clientConnectedHandler: {client}");
             ReliableEndpoint _reliableEndpoint = new ReliableEndpoint();
@@ -132,7 +132,7 @@ namespace GameServer
             _clients.TryAdd(client, _reliableEndpoint);
         }
         
-        private void clientDisconnectedHandler(RemoteClient client)
+        private void ClientDisconnectedHandler(RemoteClient client)
         {
             Console.WriteLine($"clientDisconnectedHandler: {client}");
             _clients.TryRemove(client, out _);
@@ -141,8 +141,7 @@ namespace GameServer
         private void ClientMessageReceivedHandler(RemoteClient client, byte[] payload, int payloadSize)
         {
             _clients.TryGetValue(client, out var _reliableEndpoint);
-            Console.WriteLine($"Client {client.ClientID} sent message");
-            _reliableEndpoint?.ReceivePacket(payload, payloadSize);
+            _reliableEndpoint.ReceivePacket(payload, payloadSize);
         }
             
         private void ReliableClientMessageReceived(byte[] payload, int payloadSize)

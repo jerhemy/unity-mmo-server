@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GameServer.DataAccess;
 using GameServer.GameServer;
 using GameServer.Models;
-using GameServer.Utils;
 using Microsoft.Extensions.Configuration;
-using NetcodeIO.NET;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace GameServer
 {
@@ -29,7 +26,23 @@ namespace GameServer
             var config = builder.Build();
  
             var appConfig = config.Get<ServerConfig>();
+            
+            var serviceProvider = new ServiceCollection()
+                .AddLogging()
+                .BuildServiceProvider();
 
+            //configure console logging
+            serviceProvider
+                .GetService<ILoggerFactory>()
+                .AddConsole(LogLevel.Debug);
+
+            var logger = serviceProvider.GetService<ILoggerFactory>()
+                .CreateLogger<Program>();
+            
+            logger.LogDebug("Starting application");
+
+            logger.LogInformation("Starting application");
+                
             Random rnd = new Random();
             for (int x = 0; x < 1; x++)
             {
