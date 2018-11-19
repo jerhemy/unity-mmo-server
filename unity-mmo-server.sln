@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReliableNetcode.NET", "Reli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\GameServer.csproj", "{058EFCA1-A335-4CFF-9476-2CDCE28F0826}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginServer", "LoginServer\LoginServer.csproj", "{AF0BF7D7-E8AE-40F4-9814-4E942BEA6654}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{058EFCA1-A335-4CFF-9476-2CDCE28F0826}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{058EFCA1-A335-4CFF-9476-2CDCE28F0826}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{058EFCA1-A335-4CFF-9476-2CDCE28F0826}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF0BF7D7-E8AE-40F4-9814-4E942BEA6654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF0BF7D7-E8AE-40F4-9814-4E942BEA6654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF0BF7D7-E8AE-40F4-9814-4E942BEA6654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF0BF7D7-E8AE-40F4-9814-4E942BEA6654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
