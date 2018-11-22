@@ -27,7 +27,7 @@ namespace GameServer.DataAccess.Repository
         {
             using (IDbConnection conn = Connection)
             {
-                string sQuery = "SELECT id, name, x, y, z FROM mobs WHERE ID = @ID";
+                string sQuery = "SELECT id, name, x, y, z FROM spawns WHERE ID = @ID";
                 conn.Open();
                 var result = await conn.QueryAsync<DBMob>(sQuery, new { ID = id });
                 return result.FirstOrDefault();
@@ -38,7 +38,7 @@ namespace GameServer.DataAccess.Repository
         {
             using (IDbConnection conn = Connection)
             {
-                string sQuery = "SELECT id, name, x, y, z FROM mobs WHERE zone = @ZoneName";
+                string sQuery = "SELECT id, name, x, y, z FROM spawns WHERE zone = @ZoneName";
                 conn.Open();
                 var result = await conn.QueryAsync<DBMob>(sQuery, new { ZoneName = zoneName });
                 return result.ToList();

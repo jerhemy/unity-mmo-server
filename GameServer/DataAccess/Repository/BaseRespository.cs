@@ -9,7 +9,7 @@ namespace GameServer.DataAccess.Repository
         {
             get
             {
-                return new MySqlConnection("Server=192.168.0.50;Database=unitymmo;Uid=developer;Pwd=password;");
+                return new MySqlConnection("Server=192.168.0.50;Database=UnityMMO;Uid=developer;Pwd=password;");
             }
         }
     }

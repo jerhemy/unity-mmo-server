@@ -39,9 +39,6 @@ namespace GameServer
         
         public SocketServer(string ipAddress, int port = 8559, int maxClients = 5)
         {
-            _ipAddress = ipAddress;
-            _port = port;
-            _maxClients = _maxClients;
             remoteClient_list = new ConcurrentDictionary<RemoteClient, ReliableEndpoint>();    
         }
 
@@ -51,7 +48,7 @@ namespace GameServer
             
             _server = new Server(
                 5,		            // int maximum number of clients which can connect to this server at one time
-                _ipAddress, _port,	// string public address and int port clients will connect to
+                "127.0.0.1", 8559,	// string public address and int port clients will connect to
                 1UL,		        // ulong protocol ID shared between clients and server
                 _privateKey		    // byte[32] private crypto key shared between backend servers
             );
@@ -141,7 +138,6 @@ namespace GameServer
                 OnDataReceived?.Invoke(remoteClient, buffer, size);              
             };
             
-            //_reliableEndpoint.ReceivePacket(payload, payloadSize);
         }
             
         private void ReliableClientMessageReceived(byte[] payload, int payloadSize)

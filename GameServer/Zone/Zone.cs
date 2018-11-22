@@ -11,8 +11,8 @@ namespace GameServer.Zone
 {
     public class Zone
     {
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        CancellationToken token = tokenSource.Token;
+        static CancellationTokenSource tokenSource = new CancellationTokenSource();
+        static CancellationToken  token = tokenSource.Token;
              
         private bool IsZoneLoaded { get; set; }
         private Vector3 _SafePoint;
@@ -29,12 +29,17 @@ namespace GameServer.Zone
         public Zone(string zoneName)
         {
             this.zoneName = zoneName;
-                        
+            this.entity_list = new EntityList();
+            _socket = new SocketServer("127.0.0.1");
+            _mobRepository = new MobRepository();
+            
             //Load Zone Mobs
-           
+            //LoadMobSpawns();
+
             _socket.OnClientConnected += OnClientConnected;
             _socket.OnClientConnected += OnClientDisconnected;
             _socket.OnDataReceived += OnDataReceived;
+            //_socket.OnDataReceived += entity_list.ProcessMessage;
         }
 
         public bool Start()
@@ -42,11 +47,20 @@ namespace GameServer.Zone
             try
             {
                 _socket.StartServer();             
-                Task.Run(() => { entity_list.Process(); }, token);                  
+                Task.Run(() =>
+                {
+                    while (true)
+                    {
+                        entity_list.Process();
+                    }
+
+                }, token);
+                
                 return true;
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
@@ -65,49 +79,61 @@ namespace GameServer.Zone
             }
         }
 
-        private bool LoadZoneObjects()
+        private async void LoadZoneObjects()
         {
-            //Load Zone Doors
+            var mobs = await _mobRepository.GetByZoneName(zoneName);
+            mobs.ForEach(m =>
+            {
+                Mob mob = new Mob {Name = m.Name, Position = new Vector3(m.x, m.y, m.z)};
+                entity_list.AddMob(mob);
+            });
             
-            //Load Zone Traps
-            
-            //Load Zone Artifcats   
-
-            return true;
+            Console.WriteLine($"{mobs.Count} Mobs Loaded...");
         }
 
-        private bool LoadGroundSpawns()
+        private async void LoadGroundSpawns()
         {
-            return true;
+            var mobs = await _mobRepository.GetByZoneName(zoneName);
+            mobs.ForEach(m =>
+            {
+                Mob mob = new Mob {Name = m.Name, Position = new Vector3(m.x, m.y, m.z)};
+                entity_list.AddMob(mob);
+            });
+            
+            Console.WriteLine($"{mobs.Count} Mobs Loaded...");
         }
         
-        private bool LoadMobSpawns()
+        private async void LoadMobSpawns()
         {
-            return true;
+            var mobs = await _mobRepository.GetByZoneName(zoneName);
+            mobs.ForEach(m =>
+            {
+                Mob mob = new Mob {Name = m.Name, Position = new Vector3(m.x, m.y, m.z)};
+                entity_list.AddMob(mob);
+            });
+            
+            Console.WriteLine($"{mobs.Count} Mobs Loaded...");
         }
 
         private void Process()
         {
-            while (true)
-            {
-                
-            }
+
         }
+        
         private void OnClientConnected(RemoteClient client)
         {
-            // Load Character
-            
-            
+            Console.WriteLine($"ClientID: {client.ClientID}");
+            // Add Client to List with Empty Character       
+            entity_list.AddClient(client, new Character());            
         }
 
         private void OnClientDisconnected(RemoteClient client)
-        {
-                    
+        {   
         }
         
         private void OnDataReceived(RemoteClient remoteClient, byte[] payload, int payloadSize)
-        {            
-            entity_list.GetClientByRemoteClient(remoteClient).ProcessMessage(payload, payloadSize);
+        {
+            entity_list.ProcessMessage(remoteClient, payload, payloadSize);
         }
     }
 }
